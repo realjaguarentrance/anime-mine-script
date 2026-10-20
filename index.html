@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Anime Mine Script — Auto-Mine, ESP Ore Highlights & Teleport for Minecraft</title>
+<meta name="description" content="My Anime Mine Script — anime-themed Minecraft mining cheat with auto-mine loop, ESP ore highlights, teleport-to-node, auto-sell and configurable hotkeys. Free for Windows 10 / 11.">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg-0:#070a18;
+    --bg-1:#0d1230;
+    --bg-2:#131a3f;
+    --ink:#eef1ff;
+    --ink-dim:#a9b1d6;
+    --ink-faint:#7a83ab;
+    --accent:#7c5cff;
+    --accent-2:#22d3ee;
+    --accent-3:#ff5cc8;
+    --line:rgba(140,155,255,.16);
+    --glass:rgba(20,26,60,.55);
+    --radius:16px;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 620px at 82% -8%, rgba(124,92,255,.30), transparent 62%),
+      radial-gradient(900px 560px at 6% 4%, rgba(34,211,238,.16), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(255,92,200,.13), transparent 65%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 45%, var(--bg-2) 78%, #0a0e24 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(124,92,255,.45);color:#fff}
+  a{color:inherit;text-decoration:none}
+  .wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* ---------- NAV ---------- */
+  .nav-outer{position:sticky;top:0;z-index:50;padding:14px 0}
+  .nav{
+    display:flex;align-items:center;gap:18px;
+    padding:12px 18px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:var(--glass);
+    backdrop-filter:blur(16px) saturate(160%);
+    -webkit-backdrop-filter:blur(16px) saturate(160%);
+    box-shadow:0 12px 40px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.2px;white-space:nowrap}
+  .brand .mark{
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-3));
+    box-shadow:0 0 18px rgba(124,92,255,.55);
+  }
+  .brand span{font-size:15.5px}
+  .nav-links{display:flex;gap:6px;margin:0 auto}
+  .nav-links a{
+    font-size:14px;color:var(--ink-dim);padding:8px 14px;border-radius:999px;
+    transition:color .18s ease, background .18s ease;
+  }
+  .nav-links a:hover{color:#fff;background:rgba(124,92,255,.16)}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-weight:700;font-size:14.5px;border-radius:12px;padding:12px 22px;
+    border:1px solid transparent;cursor:pointer;white-space:nowrap;
+    transition:transform .18s ease, box-shadow .22s ease, background .2s ease, border-color .2s ease;
+  }
+  .btn-primary{
+    color:#0a0620;
+    background:linear-gradient(135deg,#a78bfa 0%,#7c5cff 40%,#22d3ee 100%);
+    box-shadow:0 10px 30px rgba(124,92,255,.45);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(124,92,255,.6)}
+  .btn-ghost{
+    color:var(--ink);background:rgba(255,255,255,.03);
+    border-color:var(--line);
+  }
+  .btn-ghost:hover{transform:translateY(-2px);border-color:rgba(140,155,255,.45);background:rgba(124,92,255,.12)}
+  .nav .btn{padding:10px 18px;font-size:14px}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:76px 0 40px;text-align:center;position:relative}
+  .pill{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:#cfd6ff;padding:7px 16px;border-radius:999px;
+    border:1px solid rgba(124,92,255,.42);
+    background:rgba(124,92,255,.13);
+    box-shadow:0 0 26px rgba(124,92,255,.22);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+  h1{
+    margin:24px auto 0;max-width:900px;
+    font-size:clamp(2.15rem,5.6vw,4.05rem);
+    line-height:1.06;letter-spacing:-.03em;font-weight:850;
+    background:linear-gradient(100deg,#ffffff 0%,#c8b8ff 34%,#7c5cff 62%,#22d3ee 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.lead{
+    margin:22px auto 0;max-width:640px;font-size:clamp(15px,1.7vw,17.5px);
+    color:var(--ink-dim);
+  }
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:34px}
+  .hero-actions .btn{padding:15px 30px;font-size:15.5px;border-radius:14px}
+  .stats{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:44px}
+  .chip{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 18px;border-radius:999px;font-size:13.5px;color:var(--ink-dim);
+    border:1px solid var(--line);background:rgba(18,24,56,.6);
+    backdrop-filter:blur(8px);
+  }
+  .chip b{color:#fff;font-weight:750}
+  .chip .ic{font-size:14px}
+  .chip:hover{border-color:rgba(140,155,255,.4)}
+
+  /* ---------- SECTION HEADS ---------- */
+  section{padding:72px 0}
+  .sec-head{text-align:center;margin-bottom:46px}
+  .kicker{
+    font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent-2);
+  }
+  h2{
+    margin-top:12px;font-size:clamp(1.65rem,3.4vw,2.5rem);line-height:1.15;
+    letter-spacing:-.025em;font-weight:820;
+  }
+  .sec-head p{margin:14px auto 0;max-width:560px;color:var(--ink-dim);font-size:15.5px}
+
+  /* ---------- FEATURES ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{
+    position:relative;overflow:hidden;
+    padding:26px 24px 28px;border-radius:var(--radius);
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(26,33,72,.72),rgba(14,19,46,.72));
+    box-shadow:0 10px 30px rgba(0,0,0,.28);
+    transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    opacity:.9;
+  }
+  .card:nth-child(2)::before{background:linear-gradient(90deg,#22d3ee,#7c5cff)}
+  .card:nth-child(3)::before{background:linear-gradient(90deg,#ff5cc8,#7c5cff)}
+  .card:nth-child(4)::before{background:linear-gradient(90deg,#7c5cff,#ff5cc8)}
+  .card:nth-child(5)::before{background:linear-gradient(90deg,#22d3ee,#ff5cc8)}
+  .card:nth-child(6)::before{background:linear-gradient(90deg,#a78bfa,#22d3ee)}
+  .card:hover{
+    transform:translateY(-7px);
+    border-color:rgba(140,155,255,.4);
+    box-shadow:0 22px 48px rgba(60,40,160,.42);
+  }
+  .card .emoji{
+    width:46px;height:46px;border-radius:13px;display:grid;place-items:center;
+    font-size:22px;margin-bottom:16px;
+    background:rgba(124,92,255,.15);
+    border:1px solid rgba(124,92,255,.3);
+  }
+  .card h3{font-size:16.5px;letter-spacing:-.01em;margin-bottom:8px}
+  .card p{font-size:14px;color:var(--ink-dim)}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{position:relative;max-width:760px;margin:0 auto;padding-left:6px}
+  .steps::before{
+    content:"";position:absolute;left:27px;top:22px;bottom:22px;width:3px;border-radius:3px;
+    background:linear-gradient(180deg,var(--accent) 0%,var(--accent-2) 55%,rgba(255,92,200,.25) 100%);
+    box-shadow:0 0 18px rgba(124,92,255,.5);
+  }
+  .step{position:relative;display:flex;gap:22px;padding:0 0 34px 0}
+  .step:last-child{padding-bottom:0}
+  .step .num{
+    flex:0 0 auto;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+    font-weight:850;font-size:17px;color:#fff;
+    background:linear-gradient(135deg,#1b2350,#101636);
+    border:2px solid rgba(124,92,255,.7);
+    box-shadow:0 0 0 6px rgba(124,92,255,.09),0 0 26px rgba(124,92,255,.35);
+    z-index:1;
+  }
+  .step .body{
+    padding:16px 22px;border-radius:14px;flex:1;
+    border:1px solid var(--line);background:rgba(18,24,56,.55);
+    backdrop-filter:blur(6px);
+  }
+  .step h3{font-size:16.5px;margin-bottom:6px}
+  .step p{font-size:14px;color:var(--ink-dim)}
+  code{
+    font-family:"Cascadia Code",Consolas,monospace;font-size:12.5px;
+    background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.3);
+    padding:1px 7px;border-radius:6px;color:#d9d2ff;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  details{
+    border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:rgba(18,24,56,.55);
+    transition:border-color .2s ease, background .2s ease;
+  }
+  details[open]{border-color:rgba(124,92,255,.45);background:rgba(24,30,68,.7)}
+  summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;
+    padding:18px 22px;font-weight:700;font-size:15.5px;color:var(--ink);
+  }
+  summary::-webkit-details-marker{display:none}
+  summary .plus{
+    margin-left:auto;flex:0 0 auto;width:26px;height:26px;position:relative;
+    border-radius:8px;background:rgba(124,92,255,.16);
+    border:1px solid rgba(124,92,255,.35);
+    transition:transform .25s ease, background .25s ease;
+  }
+  summary .plus::before,summary .plus::after{
+    content:"";position:absolute;left:50%;top:50%;background:#c9c2ff;border-radius:2px;
+    transform:translate(-50%,-50%);
+    transition:opacity .2s ease, transform .25s ease;
+  }
+  summary .plus::before{width:11px;height:2px}
+  summary .plus::after{width:2px;height:11px}
+  details[open] summary .plus{transform:rotate(135deg);background:rgba(255,92,200,.2);border-color:rgba(255,92,200,.5)}
+  details[open] summary .plus::after{opacity:0}
+  .faq-body{padding:0 22px 20px 22px;font-size:14.2px;color:var(--ink-dim)}
+  .faq-body p+p{margin-top:10px}
+
+  /* ---------- CTA BANNER ---------- */
+  .cta{
+    position:relative;overflow:hidden;text-align:center;
+    padding:66px 30px;border-radius:24px;
+    border:1px solid rgba(124,92,255,.4);
+    background:linear-gradient(160deg,rgba(40,28,100,.85),rgba(12,17,44,.9) 60%,rgba(10,14,36,.95));
+    box-shadow:0 30px 80px rgba(60,30,160,.4);
+  }
+  .cta::before{
+    content:"";position:absolute;inset:-40% -10% auto -10%;height:130%;
+    background:radial-gradient(closest-side,rgba(124,92,255,.5),transparent 70%);
+    pointer-events:none;
+  }
+  .cta::after{
+    content:"";position:absolute;left:50%;bottom:-55%;width:70%;height:100%;transform:translateX(-50%);
+    background:radial-gradient(closest-side,rgba(34,211,238,.28),transparent 70%);
+    pointer-events:none;
+  }
+  .cta > *{position:relative;z-index:1}
+  .cta h2{font-size:clamp(1.6rem,3.6vw,2.6rem)}
+  .cta p{margin:14px auto 0;max-width:540px;color:var(--ink-dim);font-size:15.5px}
+  .cta .btn{margin-top:30px;padding:16px 34px;font-size:16px;border-radius:14px}
+  .cta small{display:block;margin-top:16px;color:var(--ink-faint);font-size:12.5px;letter-spacing:.02em}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--line);margin-top:20px;padding:30px 0 46px;
+    background:rgba(8,11,28,.55);
+  }
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .foot p{font-size:13.5px;color:var(--ink-faint)}
+  .foot a.link{color:#c9c2ff;font-weight:650;border-bottom:1px solid rgba(124,92,255,.4);transition:color .2s}
+  .foot a.link:hover{color:#fff}
+  .foot .brand span{font-size:14px}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:900px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:640px){
+    .wrap{padding:0 16px}
+    .nav{padding:10px 12px;gap:10px}
+    .nav-links{display:none}
+    .nav .brand span{font-size:14px}
+    .nav .btn{margin-left:auto;padding:9px 15px;font-size:13px}
+    .hero{padding:52px 0 24px}
+    .hero-actions{flex-direction:column;align-items:stretch}
+    .hero-actions .btn{width:100%}
+    .stats{gap:9px;margin-top:32px}
+    .chip{font-size:12.5px;padding:9px 14px}
+    section{padding:54px 0}
+    .grid{grid-template-columns:1fr}
+    .steps{padding-left:0}
+    .steps::before{left:21px}
+    .step{gap:14px;padding-bottom:26px}
+    .step .num{width:44px;height:44px;font-size:15px}
+    .step .body{padding:14px 16px}
+    summary{padding:16px 16px;font-size:14.5px;gap:12px}
+    .faq-body{padding:0 16px 18px}
+    .cta{padding:48px 20px;border-radius:18px}
+    .cta .btn{width:100%}
+    .foot{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<div class="nav-outer">
+  <div class="wrap">
+    <nav class="nav">
+      <a class="brand" href="#top">
+        <span class="mark">⛏</span>
+        <span>Anime&nbsp;Mine&nbsp;Script</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a class="btn btn-primary" href="https://gitscore.cc" target="_blank" rel="noopener">Download</a>
+    </nav>
+  </div>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <header class="hero wrap">
+    <span class="pill"><span class="dot"></span>My Anime Mine Script · Windows</span>
+    <h1>Anime-themed mining, automated end to end.</h1>
+    <p class="lead">
+      My Anime Mine Script runs your Minecraft mining loop on autopilot — auto-mine, ESP ore
+      highlights, teleport-to-node, auto-sell, and hotkey-driven config. Built for Windows 10 / 11,
+      tuned for smooth, low-overhead play.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://gitscore.cc" target="_blank" rel="noopener">⬇ Download for Windows</a>
+      <a class="btn btn-ghost" href="https://gitscore.cc" target="_blank" rel="noopener">★ View on GitHub</a>
+    </div>
+    <div class="stats">
+      <div class="chip"><span class="ic">📥</span><b>48,200+</b> downloads</div>
+      <div class="chip"><span class="ic">🏷</span>v<b>2.4.1</b></div>
+      <div class="chip"><span class="ic">🪟</span><b>Windows 10 / 11</b></div>
+      <div class="chip"><span class="ic">🔓</span><b>Free &amp; open source</b></div>
+    </div>
+  </header>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">Features</div>
+        <h2>Everything the mine needs, on a loop.</h2>
+        <p>Six core modules working together so you can set a route once and let the script handle the grind.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="emoji">🔁</div>
+          <h3>Auto-Mine Loop</h3>
+          <p>Continuously cycles your configured mining path, re-targeting nodes as they break. No idle frames, no manual clicks.</p>
+        </article>
+        <article class="card">
+          <div class="emoji">✨</div>
+          <h3>ESP Ore Highlights</h3>
+          <p>See valuable ores through walls with color-coded highlights and distance tags, so you never walk past a vein again.</p>
+        </article>
+        <article class="card">
+          <div class="emoji">🌀</div>
+          <h3>Teleport-to-Node</h3>
+          <p>Snap instantly to the next ore node on your route — no more tunneling between distant pockets by hand.</p>
+        </article>
+        <article class="card">
+          <div class="emoji">💰</div>
+          <h3>Auto-Sell</h3>
+          <p>Walks to your seller, dumps the inventory, and returns to mining on a schedule you define. Profits without the pit stop.</p>
+        </article>
+        <article class="card">
+          <div class="emoji">⌨️</div>
+          <h3>Config Hotkeys</h3>
+          <p>Toggle modules, reload profiles, and open the settings overlay straight from the keyboard while in-game.</p>
+        </article>
+        <article class="card">
+          <div class="emoji">🌸</div>
+          <h3>Anime UI Theme</h3>
+          <p>A clean, themed overlay with soft gradients and readable stats — because a mining bot doesn't have to look like a spreadsheet.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">How it works</div>
+        <h2>Set up in three steps.</h2>
+        <p>From download to first auto-mine run in under two minutes.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <div class="body">
+            <h3>Download &amp; unpack</h3>
+            <p>Grab the latest build for Windows from the download page, extract it to any folder, and launch the executable. No installer, no dependencies.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div class="body">
+            <h3>Pick a mining profile</h3>
+            <p>Choose a route preset or edit your own node list, then bind your toggles in the config panel. Hotkeys default to <code>F6</code> for the overlay and <code>F7</code> for auto-mine.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div class="body">
+            <h3>Run the loop</h3>
+            <p>Hit start and the script handles mining, ore highlighting, node teleports, and auto-sell cycles while you monitor the live stats overlay.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="kicker">FAQ</div>
+        <h2>Questions, answered.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is My Anime Mine Script free to use? <span class="plus"></span></summary>
+          <div class
